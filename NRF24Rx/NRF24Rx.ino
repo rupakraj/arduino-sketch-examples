@@ -24,7 +24,7 @@ RF24 radio(7,8);                // nRF24L01(+) radio attached using Getting Star
 
 RF24Network network(radio);      // Network uses that radio
 const uint16_t this_node = 00;    // Address of our node in Octal format ( 04,031, etc)
-const uint16_t other_node = 01;   // Address of the other node in Octal format
+const uint16_t other_node = 02;   // Address of the other node in Octal format
 
 struct payload_t {                 // Structure of our payload
   unsigned int stationid;
@@ -48,6 +48,8 @@ void loop(void){
   network.update();                  // Check the network regularly
 
   
+  //if(network.available())
+  //{
   while ( network.available() ) {     // Is there anything ready for us?
     
     RF24NetworkHeader header;        // If so, grab it and print it out
@@ -59,6 +61,10 @@ void loop(void){
     Serial.print(payload.temp);
     Serial.print(" H = ");
     Serial.println(payload.humi); 
+ // }
   }
+  //else{
+    //Serial.println("Not Avail");
+ // }
 }
 

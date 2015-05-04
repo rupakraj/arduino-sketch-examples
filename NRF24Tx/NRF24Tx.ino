@@ -26,14 +26,18 @@ RF24 radio(7,8);                    // nRF24L01(+) radio attached using Getting 
 
 RF24Network network(radio);          // Network uses that radio
 
-const uint16_t this_node = 02;        // Address of our node in Octal format
+const uint16_t this_node = 04;        // Address of our node in Octal format
 const uint16_t other_node = 00;       // Address of the other node in Octal format
 
 const unsigned long interval = 2000; //ms  // How often to send 'hello world to the other unit
 
-unsigned long last_sent;             // When did we last send?
-unsigned long packets_sent;          // How many have we sent already
+unsigned long last_sent=0;             // When did we last send?
+unsigned long packets_sent=0;          // How many have we sent already
 int temp1,temp2,humid1,humid2;
+int DEV_1 = 4;
+int BuzerPort = 9;
+
+
 
 struct payload_t {   // Structure of our payload
   unsigned int stationid;
@@ -44,54 +48,67 @@ struct payload_t {   // Structure of our payload
 void setup(void)
 {
   Serial.begin(57600);
-  delay(2000);
+  //delay(2000);
   Serial.println("RF24Network/examples/helloworld_tx/");
-  tempSensor.attach(A0);
-  delay(2000);
+  tempSensor.attach(A1);
+  //delay(2000);
   SPI.begin();
-  delay(2000);
+  //delay(2000);
   radio.begin();
-  delay(2000);
+  //delay(2000);
   network.begin(/*channel*/ 90, /*node address*/ this_node);
+  //pinMode(DEV_1, OUTPUT);
   delay(2000);
 }
 
 void loop() {
+  delay (2000);
+  unsigned long now = millis();              // If it's time to send a message, send it!
+  readTemp(now);  
+  //Serial.println(now);
+  //  Serial.println(temp1);
 
   network.update();                          // Check the network regularly
-
-  unsigned long now = millis();              // If it's time to send a message, send it!
-
-  readTemp(now);
+  //Serial.println("Updated Network");
 
 
+  //if ( now - last_sent >= interval  )
+  //{
+  last_sent = now;
 
-  if ( now - last_sent >= interval  )
-  {
-    last_sent = now;
-
-    Serial.print("Sending...");
-    payload_t payload = { 
-      2 ,
-      temp1,
-      humid1
-    };
-    RF24NetworkHeader header(/*to node*/ other_node);
-    bool ok = network.write(header,&payload,sizeof(payload));
-    if (ok){
-      Serial.print("OK...");
-      Serial.print("T=");
-      Serial.print(temp1);
-      Serial.print("H=");
-      Serial.println(humid1);
-    }
-    else
-      Serial.println("failed.");
+  Serial.print("Sending...");
+  payload_t payload = { 
+    this_node ,
+    temp1,
+    humid1
+  };
+  RF24NetworkHeader header(/*to node*/ other_node);
+  bool ok = network.write(header,&payload,sizeof(payload));
+  //digitalWrite(DEV_1,HIGH);
+  //delay(1000);
+  //digitalWrite(DEV_1,LOW);
+  if (ok){
+    Serial.print("OK...");
+    Serial.print("T=");
+    Serial.print(temp1);
+    Serial.print("H=");
+    Serial.println(humid1);
+    play(BuzerPort);
   }
+  else{
+    Serial.println("failed.");
+    Serial.print("T=");
+    Serial.print(temp1);
+    Serial.print("H=");
+    Serial.println(humid1);
+  }
+  //}
 }
 void readTemp(long now)
 {
-
+  temp1=10;
+  humid1=20;
+  return;
 
   tempSensor.update();
 
@@ -102,16 +119,7 @@ void readTemp(long now)
     // sensor.getTemperatureInt()
     // sensor.getHumidityInt()
     temp1  = tempSensor.getTemperatureInt();
-    humid1 = tempSensor.getHumidityInt();
-    return;
-    if ( now - last_sent >= interval-interval/2  ){
-      temp1  = tempSensor.getTemperatureInt();
-      humid1 = tempSensor.getHumidityInt();
-    }
-    else{
-      temp2  = tempSensor.getTemperatureInt();
-      humid2 = tempSensor.getHumidityInt();
-    }
+    //return;
     //Serial.println(msg);
     break;
   case DHT_ERROR_START_FAILED_1:
@@ -129,3 +137,24 @@ void readTemp(long now)
   }
 
 }
+
+void play(int BuzerPort){
+  int notes=8;  
+  // 255
+  int frequencies[] = {
+    500, 690, 500, 400, 400, 440, 494, 523    };
+
+  //  for(int i=0;i<notes;i++){
+  for(int i=0;i<2;i++){
+
+    analogWrite(BuzerPort,frequencies[i]);
+    delay(10);
+    analogWrite(BuzerPort,frequencies[i]);
+    delay(10);
+  }
+  analogWrite(BuzerPort,0);
+
+}
+
+
+

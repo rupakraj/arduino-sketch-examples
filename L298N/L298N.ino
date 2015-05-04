@@ -30,13 +30,13 @@ void demoOne()
   digitalWrite(in4, LOW);
   // set speed to 200 out of possible range 0~255
   analogWrite(enB, 200);
-  delay(2000);
+  //delay(2000);
   // now change motor directions
-  digitalWrite(in1, LOW);
-  digitalWrite(in2, HIGH);  
-  digitalWrite(in3, LOW);
-  digitalWrite(in4, HIGH); 
-  delay(2000);
+  //digitalWrite(in1, LOW);
+  //digitalWrite(in2, HIGH);  
+  //digitalWrite(in3, LOW);
+  //digitalWrite(in4, HIGH); 
+  delay(5000);
   // now turn off motors
   digitalWrite(in1, LOW);
   digitalWrite(in2, LOW);  
@@ -77,7 +77,7 @@ void demoTwo()
 void loop()
 {
   demoOne();
-  delay(1000);
-  demoTwo();
-  delay(1000);
+  delay(5000);
+  //demoTwo();
+  //delay(1000);
 }
